@@ -4,9 +4,11 @@
 *~
 *.swp
 *.pdf
+*.odt
 *.zip
 *.orig
 *.rej
+\#*\#
 t/*
 ID
 mwlib.egg-info

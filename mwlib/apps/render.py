@@ -238,4 +238,5 @@ class Main(object):
                         print 'ERROR: Could not remove temporary images: %s' % e, e.errno
 
 def main():
+    print "This is mine!"
     return Main()()
