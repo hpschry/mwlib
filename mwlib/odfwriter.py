@@ -472,6 +472,10 @@ class ODFWriter(object):
     def _replaceWhitespaces(self,obj, p):
         # replaces \n, \t and " " given from parser to ODF-valid tags
         # works on (styled) ParagraphProxy p
+        #
+        # Obviously \n will not end up here, it is already stripped from 
+        # the display text.
+        #
         rmap = {
             "\n":text.LineBreak,
             " ":text.S}
