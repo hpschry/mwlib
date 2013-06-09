@@ -17,6 +17,7 @@ from __future__ import division
 
 import sys
 import odf
+import pdb
 
 from odf.opendocument import OpenDocumentText
 from odf import text, dc, meta, table, draw, math, element
@@ -51,7 +52,7 @@ class SkipChildren(object):
 
 class ParagraphProxy(text.Element):
     """
-    special handling since most problems occure arround paragraphs
+    special handling since most problems occur arround paragraphs
     this is broken!
     """
 
@@ -207,8 +208,11 @@ class ODFWriter(object):
             parent = parent.writeto # SPECIAL HANDLING
 
         # if its text, append to last node
-        if isinstance(obj, parser.Text):
+        # if isinstance(obj, parser.Text):
+        if obj.__class__ ==  parser.Text:
             self.writeText(obj, parent)
+        elif obj.__class__ ==  parser.PreformattedText: 
+            self.writePreformattedText (obj, parent)
         else:
             # check for method
             m = "owrite" + obj.__class__.__name__
@@ -480,7 +484,8 @@ class ODFWriter(object):
             "\n":text.LineBreak,
             " ":text.S}
         col = []
-        for c in obj.getAllDisplayText().replace("\t", " "*8).strip():
+        # for c in obj.getAllDisplayText().replace("\t", " "*8).strip():
+        for c in obj.caption.replace("\t", " "*8):
             if c in rmap:
                 p.addText(u"".join(col))
                 col = []
@@ -491,9 +496,18 @@ class ODFWriter(object):
         obj.children = []  # remove the children
         return p
 
+    def writePreformattedText (self, obj, p):
+        return self._replaceWhitespaces (obj, p)
+
     def owritePreFormatted(self, obj):
+        print "writing preformatted"
+        pdb.set_trace ()
         p = ParagraphProxy(stylename=style.preformatted)
-        return self._replaceWhitespaces(obj, p)
+        # return self._replaceWhitespaces(obj, p)
+        return p
+
+    # def owritePreformattedText (self, obj):
+        
 
     def owriteSource(self, obj):
         p = ParagraphProxy(stylename=style.source)

@@ -6,13 +6,14 @@
 
 import sys
 import unicodedata
+import pdb
 
 from mwlib.advtree import removeNewlines
 from mwlib.advtree import (Article, ArticleLink, Big, Blockquote, Book, BreakingReturn, Caption, CategoryLink, Cell, Center, Chapter,
                            Cite, Code,DefinitionDescription, DefinitionList, DefinitionTerm, Deleted, Div, Emphasized, Gallery,
                            HorizontalRule, ImageLink, ImageMap, Inserted, InterwikiLink, Italic, Item, ItemList, LangLink, Link,
                            Math, NamedURL, NamespaceLink, Overline, Paragraph, PreFormatted, Reference, ReferenceList,
-                           Row, Section, Small, Source, Span, SpecialLink, Strike, Strong, Sub, Sup, Table, Teletyped, Text, Timeline,
+                           Row, Section, Small, Source, Span, SpecialLink, Strike, Strong, Sub, Sup, Table, Teletyped, Text, PreformattedText, Timeline,
                            Underline, URL, Var)
 
 from mwlib.treecleanerhelper import getNodeHeight, splitRow
@@ -132,7 +133,8 @@ class TreeCleaner(object):
         # list of nodes which do not require child nodes
         self.childlessOK = [ArticleLink, BreakingReturn, CategoryLink, Cell, Chapter, Code, 
                             HorizontalRule, ImageLink, ImageMap, InterwikiLink, LangLink, Link, Math,
-                            NamedURL, NamespaceLink, ReferenceList, Reference, SpecialLink, Text, Timeline, URL]
+                            NamedURL, NamespaceLink, ReferenceList, Reference, SpecialLink, Text, 
+                            PreformattedText, Timeline, URL]
         # exceptions to the above. if any of the list items is explicitly set as a css style the node is not removed
         common_attrs = [u'width', u'height', u'page-break-before', u'page-break-after']
         self.childless_exceptions = {Div: common_attrs,
@@ -300,8 +302,15 @@ class TreeCleaner(object):
 
         Text nodes which only contain whitespace are kept.
         """
+        # pdb.set_trace ()
+
         if node.__class__ == Text and node.parent:
-            if (node.previous and node.previous.isblocknode and node.next and node.next.isblocknode and not node.caption.strip()) or not node.caption:
+        # if isinstance (node, Text) and node.parent:
+            if (not node.caption or
+                (node.previous and node.previous.isblocknode and 
+                 node.next and node.next.isblocknode and 
+                 len (node.caption) == 0)):
+
                 self.report('removed empty text node')
                 node.parent.removeChild(node)
                 return
@@ -934,6 +943,7 @@ class TreeCleaner(object):
 
     def fixPreFormatted(self, node):
         """Rearrange PreFormatted nodes. Text is broken down into individual lines which are separated by BreakingReturns """
+        # pdb.set_trace ()
         if node.__class__ == PreFormatted:
             if not node.getAllDisplayText().strip() and node.parent:
                 node.parent.removeChild(node)
@@ -944,9 +954,15 @@ class TreeCleaner(object):
                 if len(lines) > 1:
                     text_nodes = []
                     for line in lines:
-                        t = Text(line)
+                        t = PreformattedText(line)
                         text_nodes.append(t)
-                        text_nodes.append(BreakingReturn())
+
+                        # it should be considered to derive a node for breaking
+                        # returns in preformatted, setting 'isblocknode' is a hack to 
+                        # avoid removing the node in 'removeBreakingReturns ()'
+                        r = BreakingReturn ()
+                        r.isblocknode = False
+                        text_nodes.append(r)
                     text_nodes.pop()  # remove last BR
                     c.parent.replaceChild(c, text_nodes)
             return

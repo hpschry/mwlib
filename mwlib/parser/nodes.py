@@ -311,5 +311,11 @@ class Text(Node):
         self.caption = txt
         self.children = []
     
+class PreformattedText (Text):
+    """Plain but preformatted text
+    """
+    def __init__ (self, txt):
+        super (PreformattedText, self).__init__ (txt)
+
 class Control(Text):
     pass
