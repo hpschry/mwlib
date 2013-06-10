@@ -17,7 +17,7 @@ from __future__ import division
 
 import sys
 import odf
-import pdb
+# import pdb
 
 from odf.opendocument import OpenDocumentText
 from odf import text, dc, meta, table, draw, math, element
@@ -500,8 +500,8 @@ class ODFWriter(object):
         return self._replaceWhitespaces (obj, p)
 
     def owritePreFormatted(self, obj):
-        print "writing preformatted"
-        pdb.set_trace ()
+        # print "writing preformatted"
+        # pdb.set_trace ()
         p = ParagraphProxy(stylename=style.preformatted)
         # return self._replaceWhitespaces(obj, p)
         return p
